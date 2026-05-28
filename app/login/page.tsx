@@ -8,6 +8,9 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [demoLoading, setDemoLoading] = useState(false)
+
+  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
 
   const handleMagicLink = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -100,6 +103,38 @@ export default function LoginPage() {
             </>
           )}
         </div>
+
+        {/* Demo bypass — only visible when NEXT_PUBLIC_DEMO_MODE=true */}
+        {isDemoMode && !sent && (
+          <div className="mt-5">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-1 h-px bg-white/5" />
+              <span className="text-zinc-700 text-xs uppercase tracking-widest">testing</span>
+              <div className="flex-1 h-px bg-white/5" />
+            </div>
+            <button
+              id="demo-user-btn"
+              disabled={demoLoading}
+              onClick={async () => {
+                setDemoLoading(true)
+                await signIn('demo', { callbackUrl: '/dashboard' })
+              }}
+              className="w-full flex items-center justify-center gap-2 text-zinc-600 text-sm py-2 px-4 rounded-xl border border-white/5 hover:border-white/10 hover:text-zinc-400 transition-all duration-200 disabled:opacity-40"
+            >
+              {demoLoading ? (
+                <span className="animate-pulse">Signing in as demo...</span>
+              ) : (
+                <>
+                  <span className="text-xs">🧪</span>
+                  Continue as Demo User
+                </>
+              )}
+            </button>
+            <p className="text-center text-zinc-700 text-xs mt-2">
+              demo@breakupbox.com · subscription tier · dev bypass
+            </p>
+          </div>
+        )}
 
         <p className="text-center text-zinc-600 text-xs mt-6">
           By signing in, you agree to our Terms of Service and Privacy Policy
