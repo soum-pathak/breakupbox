@@ -20,10 +20,12 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const PROTECTED_PATHS = ['/dashboard', '/checklist']
 
-// Both cookie variants NextAuth v5 may set depending on the request protocol
+// Both cookie variants NextAuth v5 may set depending on the request protocol,
+// plus the lightweight demo bypass cookie set client-side on the login page.
 const SESSION_COOKIE_NAMES = [
   '__Secure-authjs.session-token', // HTTPS — production + Vercel preview
   'authjs.session-token',          // HTTP  — localhost
+  'bb-demo-session',               // Pure client-side demo bypass (no NextAuth/DB)
 ]
 
 function hasSessionCookie(req: NextRequest): boolean {

@@ -2,9 +2,11 @@
 
 import { signIn } from 'next-auth/react'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Mail, Heart, ArrowRight } from 'lucide-react'
 
 export default function LoginPage() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -115,14 +117,23 @@ export default function LoginPage() {
             <button
               id="demo-user-btn"
               disabled={demoLoading}
-              onClick={async () => {
+              onClick={() => {
                 setDemoLoading(true)
-                await signIn('demo', { callbackUrl: '/dashboard' })
+                // Pure client-side bypass — no NextAuth, no DB adapter, no network request.
+                // Sets a recognizable demo cookie then navigates directly to /dashboard.
+                // proxy.ts reads this cookie to permit entry; dashboard injects mock data.
+                document.cookie = [
+                  'bb-demo-session=demo-authenticated',
+                  'path=/',
+                  'max-age=3600',   // 1 hour
+                  'SameSite=Lax',
+                ].join('; ')
+                router.push('/dashboard')
               }}
               className="w-full flex items-center justify-center gap-2 text-zinc-600 text-sm py-2 px-4 rounded-xl border border-white/5 hover:border-white/10 hover:text-zinc-400 transition-all duration-200 disabled:opacity-40"
             >
               {demoLoading ? (
-                <span className="animate-pulse">Signing in as demo...</span>
+                <span className="animate-pulse">Opening dashboard...</span>
               ) : (
                 <>
                   <span className="text-xs">🧪</span>
@@ -131,10 +142,11 @@ export default function LoginPage() {
               )}
             </button>
             <p className="text-center text-zinc-700 text-xs mt-2">
-              demo@breakupbox.com · subscription tier · dev bypass
+              Full subscription tier · no email required · dev bypass
             </p>
           </div>
         )}
+
 
         <p className="text-center text-zinc-600 text-xs mt-6">
           By signing in, you agree to our Terms of Service and Privacy Policy
